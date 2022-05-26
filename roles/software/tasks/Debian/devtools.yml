@@ -1,0 +1,64 @@
+- name: Install Essential Tools
+  apt:
+    name:
+      - htop
+      - git
+      - terminator
+    state: present
+
+- name: Install Python Dependencies
+  apt:
+    name:
+      - python3
+      - python3-pip
+      - python3-virtualenv
+      - python3-venv
+    state: present
+
+- name: Check if Poetry is installed
+  become: yes
+  become_user: '{{ user.username }}'
+  shell: /home/{{ user.username }}/.local/bin/poetry --version
+  register: poetry_version_cmd
+  changed_when: false
+  ignore_errors: true
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: user
+    label: '{{ user.username }}'
+
+- name: Poetry Install
+  become: yes
+  become_user: '{{ user.username }}'
+  shell: "curl -sSL https://install.python-poetry.org | python3 -"
+  with_items: "{{ users }}"
+  when: poetry_version_cmd is failed
+  loop_control:
+    loop_var: user
+    label: '{{ user.username }}'
+
+- name: Create Directory Plugin Poetry
+  become: yes
+  become_user: '{{ user.username }}'
+  file:
+    path: ~{{ user.username }}/.oh-my-zsh/plugins/poetry
+    state: directory
+    owner: '{{ user.username }}'
+    mode: 'go-w'
+  with_items: "{{ users }}"
+  when: poetry_version_cmd is failed
+  loop_control:
+    loop_var: user
+    label: '{{ user.username }}'
+
+- name: Install Plugin Poetry
+  become: yes
+  become_user: '{{ user.username }}'
+  shell: ~{{ user.username }}/.local/bin/poetry completions zsh > ~{{ user.username }}/.oh-my-zsh/plugins/poetry/_poetry
+  changed_when: false
+  ignore_errors: true
+  when: poetry_version_cmd is failed
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: user
+    label: '{{ user.username }}'

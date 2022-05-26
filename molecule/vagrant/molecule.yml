@@ -1,0 +1,30 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+platforms:
+  - name: instance
+    box: fedora/32-cloud-base
+    memory: 2048
+    cpus: 3
+    interfaces:
+      - network_name: forwarded_port
+        guest: 8010
+        host: 8010
+    config_options:
+      ssh.keep_alive: yes
+      ssh.remote_user: "'vagrant'"
+provisioner:
+  env:
+    ANSIBLE_ROLES_PATH: "../../roles"
+  name: ansible
+  connection_options:
+    ansible_ssh_user: vagrant
+    ansible_become: true
+verifier:
+  name: ansible
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .

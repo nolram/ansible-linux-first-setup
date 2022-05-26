@@ -1,0 +1,4 @@
+---
+- name: dpkg-reconfigure console-setup
+  become: true
+  command: /usr/sbin/dpkg-reconfigure -f noninteractive console-setup

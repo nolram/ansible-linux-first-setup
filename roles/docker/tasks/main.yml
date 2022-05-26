@@ -7,9 +7,10 @@
 
 - name: Install Docker.
   package:
-    name: "{{ docker_package }}"
+    name: "{{ item }}"
     state: "{{ docker_package_state }}"
   notify: restart docker
+  loop: "{{ docker_packages }}"
 
 - name: Ensure Docker is started and enabled at boot.
   service:
@@ -20,8 +21,8 @@
 - name: Ensure handlers are notified now to avoid firewall conflicts.
   meta: flush_handlers
 
-- include_tasks: docker-compose.yml
-  when: docker_install_compose
+# - include_tasks: docker-compose.yml
+#   when: docker_install_compose
 
 - include_tasks: docker-users.yml
   when: docker_users

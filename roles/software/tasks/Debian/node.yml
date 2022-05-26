@@ -1,0 +1,9 @@
+- name: Check if nvm is installed
+  shell: nvm --version
+  register: nvm_version_cmd
+  changed_when: false
+  ignore_errors: true
+
+- name: Install nvm
+  shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+  when: nvm_version_cmd is failed

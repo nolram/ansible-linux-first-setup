@@ -1,0 +1,17 @@
+---
+
+- name: Echo default Shell
+  become: true
+  become_user: '{{ user.username }}'
+  command: echo $SHELL
+  register: default_shell
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: user
+    label: '{{ user.username }}'
+
+
+- name: "Assert zsh is the default shell"
+  assert:
+    that:
+      - default_shell=="/usr/bin/zsh" or default_shell=="/bin/zsh" 
